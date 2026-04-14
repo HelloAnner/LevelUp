@@ -1858,6 +1858,68 @@ textarea {
   transition: border-bottom-color var(--t-base) var(--ease-out);
 }
 
+/* ──────────────────────────────────────────────
+ * Responsive breakpoints (PRD §13)
+ * ──────────────────────────────────────────── */
+
+/* Tablet: ≤1024px */
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-w-expanded: 220px;
+    --drawer-w: 400px;
+    --cmdbar-w: 520px;
+    --content-max: 600px;
+  }
+}
+
+/* Mobile: ≤768px */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-w-expanded: 100vw;
+    --drawer-w: 100vw;
+    --cmdbar-w: calc(100vw - 32px);
+    --content-max: 100%;
+  }
+
+  .body {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar.expanded {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    width: 100vw;
+    background: var(--bg-0);
+  }
+
+  .sidebar.collapsed {
+    display: none;
+  }
+
+  .drawer-scrim .drawer {
+    width: 100vw;
+  }
+
+  .cmdbar {
+    width: calc(100vw - 32px);
+    max-width: 100%;
+  }
+
+  .msg-col {
+    padding: 0 var(--sp-4);
+  }
+
+  .input-inner {
+    max-width: 100%;
+    margin: 0 var(--sp-4);
+  }
+
+  .topbar {
+    padding: 0 var(--sp-4);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .halo,
   .word-stream > span {
