@@ -1,4 +1,4 @@
-export type { TenantContext, TenantDb, WorkspaceFs } from './context.js';
+export type { TenantContext, TenantDb, WorkspaceFs, VectorStore } from './context.js';
 export { TenantRegistry, createTenantRegistry } from './registry.js';
 export type { TenantRegistryOptions, RegistryStats } from './registry.js';
 export { resolveTenantDir } from './paths.js';
