@@ -149,6 +149,9 @@ importers:
       '@levelup/goal-tree':
         specifier: workspace:*
         version: link:../goal-tree
+      '@levelup/memory':
+        specifier: workspace:*
+        version: link:../memory
       '@levelup/shared':
         specifier: workspace:*
         version: link:../shared
