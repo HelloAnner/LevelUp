@@ -6,6 +6,7 @@ import Sidebar from '@/components/Sidebar';
 import InputBar from '@/components/InputBar';
 import InlineCard from '@/components/InlineCard';
 import Halo from '@/components/Halo';
+import WordStream from '@/components/WordStream';
 import { MOCK_GOALS } from '@/lib/mock';
 import { useDrawer } from '@/lib/drawer';
 
@@ -16,6 +17,7 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   card?: CardPayload | null;
+  streaming?: boolean;
 }
 
 export default function Home(): ReactElement {
@@ -75,7 +77,7 @@ export default function Home(): ReactElement {
     setMessages((m) => [
       ...m,
       { id: userMsgId, role: 'user', content: trimmed },
-      { id: assistantId, role: 'assistant', content: '' },
+      { id: assistantId, role: 'assistant', content: '', streaming: true },
     ]);
 
     const res = await fetch(`/api/conversations/${id}/messages`, {
@@ -127,6 +129,11 @@ export default function Home(): ReactElement {
             ),
           );
         } else if (eventName === 'done' || eventName === 'error') {
+          setMessages((m) =>
+            m.map((msg) =>
+              msg.id === assistantId ? { ...msg, streaming: false } : msg,
+            ),
+          );
           setPending(false);
         }
       }
@@ -187,7 +194,11 @@ export default function Home(): ReactElement {
                 }
                 return (
                   <div key={m.id} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                    {m.content && <div className="msg-ai">{m.content}</div>}
+                    {m.content && (
+                      <div className="msg-ai">
+                        {m.streaming ? <WordStream text={m.content} /> : m.content}
+                      </div>
+                    )}
                     {m.card && <InlineCard card={m.card} />}
                   </div>
                 );
