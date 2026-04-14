@@ -1,4 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
+import Providers from './providers';
 import ScenesNav from '@/components/ScenesNav';
 import './globals.css';
 
@@ -11,8 +12,10 @@ export default function RootLayout({ children }: { children: ReactNode }): React
   return (
     <html lang="en" data-theme="dark">
       <body>
-        {children}
-        <ScenesNav />
+        <Providers>
+          {children}
+          <ScenesNav />
+        </Providers>
       </body>
     </html>
   );
