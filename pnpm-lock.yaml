@@ -192,6 +192,24 @@ importers:
         specifier: ^5.0.7
         version: 5.1.7
 
+  packages/implementation-intention:
+    dependencies:
+      '@levelup/llm':
+        specifier: workspace:*
+        version: link:../llm
+      '@levelup/persona':
+        specifier: workspace:*
+        version: link:../persona
+      '@levelup/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@levelup/tenancy':
+        specifier: workspace:*
+        version: link:../tenancy
+      nanoid:
+        specifier: ^5.0.0
+        version: 5.1.7
+
   packages/llm:
     dependencies:
       '@anthropic-ai/sdk':
