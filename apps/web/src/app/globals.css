@@ -1258,6 +1258,54 @@ textarea {
   letter-spacing: 1px;
 }
 
+.cmdbar-empty {
+  padding: 20px 24px;
+  font-size: 13px;
+  color: var(--fg-2);
+}
+
+/* cmdk integration — override cmdk defaults */
+[cmdk-root] {
+  display: flex;
+  flex-direction: column;
+}
+
+[cmdk-input] {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: -0.1px;
+  color: var(--fg-0);
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+[cmdk-input]::placeholder {
+  color: var(--fg-3);
+}
+
+[cmdk-list] {
+  overflow: auto;
+  max-height: 320px;
+}
+
+[cmdk-group-heading] {
+  padding: 6px 24px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  color: var(--fg-2);
+}
+
+[cmdk-item][data-selected='true'] {
+  background: var(--bg-2);
+}
+
+[cmdk-item][data-selected='true'] .cmdbar-row-text {
+  color: var(--fg-0);
+}
+
 /* ──────────────────────────────────────────────
  * Goal Detail Drawer (frame 8)
  * ──────────────────────────────────────────── */
