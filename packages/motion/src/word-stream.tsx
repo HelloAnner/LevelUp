@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, type ReactElement } from 'react';
+import { useMemo, useRef, type ReactElement } from 'react';
 import { useReducedMotion } from './reduced-motion';
 
 interface WordStreamProps {
@@ -10,6 +10,12 @@ interface WordStreamProps {
   gap?: number;
   /** Extra pause after sentence-ending punctuation (default 240) */
   sentencePause?: number;
+  /**
+   * When true, only words appended since last render animate in —
+   * existing words stay static. Use for live SSE token streams so
+   * you don't re-stagger the whole message each token.
+   */
+  streaming?: boolean;
   className?: string;
 }
 
@@ -23,20 +29,28 @@ export function WordStream({
   startDelay = 0,
   gap = 60,
   sentencePause = 240,
+  streaming = false,
   className = '',
 }: WordStreamProps): ReactElement {
   const reduced = useReducedMotion();
   const parts = useMemo(() => text.split(/(\s+)/), [text]);
+  const seenCount = useRef(0);
 
   if (reduced) {
     return <span className={className}>{text}</span>;
   }
+
+  const firstNewIndex = streaming ? seenCount.current : 0;
+  seenCount.current = parts.length;
 
   let delay = startDelay;
   return (
     <span className={`word-stream ${className}`}>
       {parts.map((part, i) => {
         if (part.trim() === '') return <span key={i}>{part}</span>;
+        if (streaming && i < firstNewIndex) {
+          return <span key={i} style={{ opacity: 1, animation: 'none' }}>{part}</span>;
+        }
         const d = delay;
         delay += gap;
         if (/[.!?。！？]$/.test(part)) delay += sentencePause - gap;

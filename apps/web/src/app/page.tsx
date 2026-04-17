@@ -198,7 +198,11 @@ export default function Home(): ReactElement {
                   <div key={m.id} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                     {m.content && (
                       <div className="msg-ai">
-                        {m.streaming ? <WordStream text={m.content} /> : m.content}
+                        {m.streaming ? (
+                          <WordStream text={m.content} streaming />
+                        ) : (
+                          m.content
+                        )}
                       </div>
                     )}
                     {m.card && <InlineCard card={m.card} />}
