@@ -9,6 +9,7 @@ declare module 'fastify' {
     user?: AuthUser | undefined;
     tenant?: TenantContext | undefined;
     mcpScopes?: string[] | undefined;
+    mcpTokenId?: string | undefined;
   }
 }
 
@@ -40,9 +41,14 @@ export async function installPlugins(app: FastifyInstance, deps: AppDeps): Promi
       if (authHeader?.startsWith('Bearer ')) {
         const raw = authHeader.slice('Bearer '.length).trim();
         try {
-          const verified = deps.auth.verifyMcpToken(raw);
+          const verified = deps.auth.verifyMcpToken(raw) as {
+            user: AuthUser;
+            scopes: string[];
+            tokenId?: string;
+          };
           req.user = verified.user;
           req.mcpScopes = verified.scopes;
+          if (verified.tokenId) req.mcpTokenId = verified.tokenId;
         } catch {
           /* fall through; handlers can still require auth */
         }

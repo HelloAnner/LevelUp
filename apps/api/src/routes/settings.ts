@@ -25,7 +25,12 @@ export async function settingsRoutes(
         role: z.string().optional(),
       })
       .parse(req.body);
-    await memoryStore.patchProfile(tenant, body);
+    // exactOptionalPropertyTypes: strip undefined-valued keys before patching.
+    const patch: Record<string, string> = {};
+    if (body.name !== undefined) patch.name = body.name;
+    if (body.city !== undefined) patch.city = body.city;
+    if (body.role !== undefined) patch.role = body.role;
+    await memoryStore.patchProfile(tenant, patch);
     return { ok: true };
   });
 
@@ -51,7 +56,11 @@ export async function settingsRoutes(
         pacing: z.number().min(0).max(100).optional(),
       })
       .parse(req.body);
-    const soul = await personaEngine.manualSet(tenant, body);
+    const patch: { warmth?: number; directness?: number; pacing?: number } = {};
+    if (body.warmth !== undefined) patch.warmth = body.warmth;
+    if (body.directness !== undefined) patch.directness = body.directness;
+    if (body.pacing !== undefined) patch.pacing = body.pacing;
+    const soul = await personaEngine.manualSet(tenant, patch);
     return {
       ok: true,
       persona: {

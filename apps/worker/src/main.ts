@@ -38,7 +38,9 @@ export async function buildLoggerOptions(
 
 async function hasPinoPretty(): Promise<boolean> {
   try {
-    await import('pino-pretty');
+    // pino-pretty is an optional dev-only dependency; resolve dynamically so
+    // TypeScript doesn't require its types and production doesn't need it.
+    await import(/* @vite-ignore */ 'pino-pretty' as string);
     return true;
   } catch {
     return false;
