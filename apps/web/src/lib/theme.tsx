@@ -25,10 +25,10 @@ interface ThemeCtx {
 
 const Ctx = createContext<ThemeCtx>(null!);
 
-function readCookie(name: string): string | undefined {
-  if (typeof document === 'undefined') return undefined;
+function readCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null;
   const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
-  return match ? decodeURIComponent(match[1]) : undefined;
+  return match && match[1] !== undefined ? decodeURIComponent(match[1]) : null;
 }
 
 function getStored(): ThemeMode {

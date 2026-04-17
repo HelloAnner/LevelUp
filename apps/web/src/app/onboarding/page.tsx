@@ -48,7 +48,19 @@ export default function OnboardingPage(): ReactElement {
     setCreating(true);
 
     try {
-      // Create goal via API
+      // Save the user's name to profile (anchor step)
+      if (name.trim()) {
+        await fetch('/api/settings/profile', {
+          method: 'PATCH',
+          headers: { 'content-type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ name: name.trim() }),
+        });
+      }
+
+      // Create goal — the remaining onboarding steps (define-done /
+      // milestones / focus / bind intention) happen organically in the
+      // conversation flow on the main page, not as explicit form steps
       const res = await fetch('/api/goals', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -56,16 +68,20 @@ export default function OnboardingPage(): ReactElement {
         body: JSON.stringify({ title: trimmed }),
       });
 
-      if (res.ok) {
-        // Create initial conversation with the goal context
-        await fetch('/api/conversations', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({}),
-        });
-        router.push('/');
+      if (!res.ok) {
+        setCreating(false);
+        return;
       }
+
+      // Seed a conversation so the user lands in chat with continuity
+      await fetch('/api/conversations', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        body: '{}',
+      });
+
+      router.push('/');
     } catch {
       setCreating(false);
     }

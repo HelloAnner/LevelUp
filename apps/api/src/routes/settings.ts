@@ -32,8 +32,14 @@ export async function settingsRoutes(
   // Persona dimensions
   app.get('/api/settings/persona', async (req) => {
     const tenant = requireTenant(req);
-    const persona = await personaEngine.readPersona(tenant);
-    return { persona };
+    const soul = await personaEngine.loadSoul(tenant);
+    return {
+      persona: {
+        warmth: soul.frontmatter.warmth,
+        directness: soul.frontmatter.directness,
+        pacing: soul.frontmatter.pacing,
+      },
+    };
   });
 
   app.patch('/api/settings/persona', async (req) => {
@@ -45,11 +51,15 @@ export async function settingsRoutes(
         pacing: z.number().min(0).max(100).optional(),
       })
       .parse(req.body);
-    await personaEngine.calibrate(tenant, {
-      type: 'manual_adjustment',
-      ...body,
-    });
-    return { ok: true };
+    const soul = await personaEngine.manualSet(tenant, body);
+    return {
+      ok: true,
+      persona: {
+        warmth: soul.frontmatter.warmth,
+        directness: soul.frontmatter.directness,
+        pacing: soul.frontmatter.pacing,
+      },
+    };
   });
 
   // Memory (What I Remember)
