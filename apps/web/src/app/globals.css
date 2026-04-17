@@ -26,7 +26,18 @@
   --accent: #60a5fa;
   --accent-dim: rgba(96, 165, 250, 0.32);
   --accent-glow: rgba(96, 165, 250, 0.16);
+  --accent-blue: #60a5fa;
+  --accent-pink: #f472b6;
   --signal: #fb923c;
+
+  /* Modal overlays */
+  --scrim: rgba(9, 9, 11, 0.72);
+  --scrim-drawer: rgba(9, 9, 11, 0.6);
+
+  /* Hero blobs (onboarding / chat empty) */
+  --blob-purple: rgba(124, 58, 237, 0.18);
+  --blob-blue: rgba(59, 130, 246, 0.16);
+  --blob-pink: rgba(236, 72, 153, 0.14);
 
   /* Space · 8pt grid */
   --sp-1: 4px;
@@ -74,25 +85,34 @@
   color-scheme: dark;
 }
 
-/* Light theme */
+/* Light theme — warm Moss-style palette (ui-light.pen) */
 [data-theme='light'] {
-  --bg-0: #fafafa;
-  --bg-1: #f4f4f5;
-  --bg-2: #e4e4e7;
-  --bg-glass: rgba(244, 244, 245, 0.76);
+  --bg-0: #faf9f7;
+  --bg-1: #ffffff;
+  --bg-2: #f2f0eb;
+  --bg-glass: rgba(255, 255, 255, 0.82);
 
-  --fg-0: #09090b;
-  --fg-1: #52525b;
-  --fg-2: #71717a;
-  --fg-3: #a1a1aa;
+  --fg-0: #1a1715;
+  --fg-1: #5c5751;
+  --fg-2: #8c8780;
+  --fg-3: #b3aea6;
 
-  --line-1: rgba(0, 0, 0, 0.06);
-  --line-2: rgba(0, 0, 0, 0.1);
+  --line-1: rgba(26, 23, 21, 0.06);
+  --line-2: rgba(26, 23, 21, 0.12);
 
-  --accent: #2563eb;
-  --accent-dim: rgba(37, 99, 235, 0.2);
-  --accent-glow: rgba(37, 99, 235, 0.08);
-  --signal: #ea580c;
+  --accent: #7c3aed;
+  --accent-dim: rgba(124, 58, 237, 0.22);
+  --accent-glow: rgba(124, 58, 237, 0.1);
+  --accent-blue: #3b82f6;
+  --accent-pink: #ec4899;
+  --signal: #e86b2e;
+
+  --scrim: rgba(26, 23, 21, 0.18);
+  --scrim-drawer: rgba(26, 23, 21, 0.12);
+
+  --blob-purple: rgba(124, 58, 237, 0.28);
+  --blob-blue: rgba(59, 130, 246, 0.22);
+  --blob-pink: rgba(236, 72, 153, 0.2);
 
   color-scheme: light;
 }
@@ -1256,13 +1276,44 @@ textarea {
   background: var(--bg-0);
 }
 
+/* Segmented control (theme toggle) */
+.seg {
+  display: inline-flex;
+  padding: 2px;
+  background: var(--bg-2);
+  border: 1px solid var(--line-1);
+  border-radius: var(--r-md);
+  gap: 2px;
+}
+
+.seg-btn {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.1px;
+  color: var(--fg-2);
+  border-radius: 6px;
+  transition: background var(--t-fast) var(--ease-out),
+    color var(--t-fast) var(--ease-out);
+}
+
+.seg-btn:hover {
+  color: var(--fg-1);
+}
+
+.seg-btn.active {
+  background: var(--bg-1);
+  color: var(--fg-0);
+  box-shadow: 0 1px 2px var(--line-1);
+}
+
 /* ──────────────────────────────────────────────
  * Command Bar (frame 7)
  * ──────────────────────────────────────────── */
 .scrim {
   position: fixed;
   inset: 0;
-  background: rgba(9, 9, 11, 0.72);
+  background: var(--scrim);
   backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
@@ -1278,7 +1329,7 @@ textarea {
   backdrop-filter: blur(20px);
   border: 1px solid var(--line-2);
   border-radius: var(--r-lg);
-  box-shadow: 0 0 0 1px var(--line-1), 0 24px 64px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 0 1px var(--line-1), 0 24px 64px rgba(12, 10, 8, 0.28);
   display: flex;
   flex-direction: column;
 }
@@ -1455,7 +1506,7 @@ textarea {
   inset: 0;
   display: flex;
   justify-content: flex-end;
-  background: rgba(9, 9, 11, 0.6);
+  background: var(--scrim-drawer);
   backdrop-filter: blur(2px);
   z-index: 90;
 }
@@ -1859,6 +1910,80 @@ textarea {
 }
 
 /* ──────────────────────────────────────────────
+ * Moss hero blob (chat empty / onboarding / milestone)
+ * ──────────────────────────────────────────── */
+.hero-blobs {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.hero-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  animation: blob-breathe 9s var(--ease-io) infinite;
+}
+
+.hero-blob.purple {
+  background: var(--blob-purple);
+}
+
+.hero-blob.blue {
+  background: var(--blob-blue);
+  animation-delay: -3s;
+}
+
+.hero-blob.pink {
+  background: var(--blob-pink);
+  animation-delay: -6s;
+}
+
+@keyframes blob-breathe {
+  0%, 100% { opacity: 0.85; transform: translate3d(0, 0, 0) scale(1); }
+  50% { opacity: 1; transform: translate3d(0, -8px, 0) scale(1.05); }
+}
+
+/* Chat hero (frame 15/16) — centered soft halo */
+.chat-hero {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.chat-hero-core {
+  position: relative;
+  width: 520px;
+  height: 440px;
+}
+
+.chat-hero-core > .hero-blob.purple {
+  left: 80px;
+  top: 40px;
+  width: 380px;
+  height: 380px;
+}
+
+.chat-hero-core > .hero-blob.blue {
+  left: 220px;
+  top: 80px;
+  width: 300px;
+  height: 300px;
+}
+
+.chat-hero-core > .hero-blob.pink {
+  left: 40px;
+  top: 180px;
+  width: 280px;
+  height: 260px;
+}
+
+/* ──────────────────────────────────────────────
  * Responsive breakpoints (PRD §13)
  * ──────────────────────────────────────────── */
 
@@ -1922,7 +2047,8 @@ textarea {
 
 @media (prefers-reduced-motion: reduce) {
   .halo,
-  .word-stream > span {
+  .word-stream > span,
+  .hero-blob {
     animation: none;
   }
   .input-cursor,

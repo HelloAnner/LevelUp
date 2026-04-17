@@ -6,6 +6,7 @@ import Sidebar from '@/components/Sidebar';
 import InputBar from '@/components/InputBar';
 import InlineCard from '@/components/InlineCard';
 import Halo from '@/components/Halo';
+import HeroBlobs from '@/components/HeroBlobs';
 import WordStream from '@/components/WordStream';
 import { MOCK_GOALS } from '@/lib/mock';
 import { useDrawer } from '@/lib/drawer';
@@ -145,7 +146,7 @@ export default function Home(): ReactElement {
       <div className="app">
         <TopBar right="none" />
         <div className="body-center">
-          <Halo size={1000} opacity={0.5} />
+          <HeroBlobs />
           <div className="login-stack">
             <div className="login-q">What should I call you?</div>
             <div className="login-input-wrap">
@@ -175,11 +176,12 @@ export default function Home(): ReactElement {
           goals={MOCK_GOALS}
           onGoalClick={(id) => openDrawer({ type: 'goal', goalId: id })}
         />
-        <main className="main">
-          <div className="msg-area" ref={streamRef}>
+        <main className="main" style={{ position: 'relative' }}>
+          {messages.length === 0 && <HeroBlobs />}
+          <div className="msg-area" ref={streamRef} style={{ position: 'relative', zIndex: 1 }}>
             <div className="msg-col">
               {messages.length === 0 && (
-                <div className="msg-ai" style={{ color: 'var(--fg-1)' }}>
+                <div className="msg-ai" style={{ color: 'var(--fg-1)', textAlign: 'center' }}>
                   Start talking. I&apos;ll remember what you say.
                 </div>
               )}

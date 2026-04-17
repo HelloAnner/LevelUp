@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import TopBar from '@/components/TopBar';
-import Halo from '@/components/Halo';
+import HeroBlobs from '@/components/HeroBlobs';
 
 export default function EmptyScene(): ReactElement {
   return (
@@ -13,8 +13,8 @@ export default function EmptyScene(): ReactElement {
           </span>
         </aside>
         <main className="body-center">
-          <Halo size={440} opacity={0.5} />
-          <div className="empty">
+          <HeroBlobs />
+          <div className="empty" style={{ position: 'relative', zIndex: 1 }}>
             <div className="dot active" style={{ marginBottom: 0 }} />
             <div className="empty-title">Start talking.</div>
             <div className="empty-sub">I&apos;ll remember what you say.</div>
