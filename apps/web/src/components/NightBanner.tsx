@@ -4,7 +4,7 @@ import type { ReactElement } from 'react';
 import { useTheme } from '@/lib/theme';
 
 export default function NightBanner(): ReactElement {
-  const { showNightBanner, setTheme, dismissNightBanner } = useTheme();
+  const { showNightBanner, setMode, dismissNightBanner } = useTheme();
 
   if (!showNightBanner) return <></>;
 
@@ -14,7 +14,7 @@ export default function NightBanner(): ReactElement {
       <button
         className="night-banner-btn"
         onClick={() => {
-          setTheme('dark');
+          setMode('dark');
           dismissNightBanner();
         }}
       >

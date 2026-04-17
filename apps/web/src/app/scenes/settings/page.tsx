@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import TopBar from '@/components/TopBar';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function SettingsScene(): ReactElement {
   return (
@@ -60,10 +61,10 @@ export default function SettingsScene(): ReactElement {
             <div className="settings-section-label">APPEARANCE</div>
             <div className="settings-row">
               <span className="settings-row-label">Theme</span>
-              <span className="settings-row-value">Dark</span>
+              <ThemeToggle />
             </div>
             <div className="settings-row">
-              <span className="settings-row-label">Sound</span>
+              <span className="settings-row-label">Ambient sound</span>
               <div className="toggle" />
             </div>
           </section>

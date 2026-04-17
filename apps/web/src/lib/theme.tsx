@@ -11,11 +11,13 @@ import {
   type ReactNode,
 } from 'react';
 
-type Theme = 'dark' | 'light';
+export type ThemeMode = 'dark' | 'light' | 'auto';
+type Resolved = 'dark' | 'light';
 
 interface ThemeCtx {
-  theme: Theme;
-  setTheme: (t: Theme) => void;
+  mode: ThemeMode;
+  resolved: Resolved;
+  setMode: (m: ThemeMode) => void;
   toggle: () => void;
   showNightBanner: boolean;
   dismissNightBanner: () => void;
@@ -23,57 +25,76 @@ interface ThemeCtx {
 
 const Ctx = createContext<ThemeCtx>(null!);
 
-function getStored(): Theme {
+function getStored(): ThemeMode {
   if (typeof window === 'undefined') return 'dark';
-  return (localStorage.getItem('theme') as Theme) ?? 'dark';
+  const m = localStorage.getItem('theme');
+  return m === 'light' || m === 'auto' ? m : 'dark';
+}
+
+function systemPrefersDark(): boolean {
+  if (typeof window === 'undefined') return true;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+function resolve(mode: ThemeMode): Resolved {
+  if (mode === 'auto') return systemPrefersDark() ? 'dark' : 'light';
+  return mode;
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }): ReactElement {
-  const [theme, setThemeState] = useState<Theme>(getStored);
+  const [mode, setModeState] = useState<ThemeMode>(getStored);
+  const [resolved, setResolved] = useState<Resolved>(() => resolve(getStored()));
   const [showNightBanner, setShowNightBanner] = useState(false);
 
-  const setTheme = useCallback((t: Theme) => {
-    setThemeState(t);
-    localStorage.setItem('theme', t);
-    document.documentElement.setAttribute('data-theme', t);
-    // Also set cookie for SSR
-    document.cookie = `theme=${t};path=/;max-age=31536000;SameSite=Lax`;
+  const apply = useCallback((r: Resolved) => {
+    setResolved(r);
+    document.documentElement.setAttribute('data-theme', r);
   }, []);
 
+  const setMode = useCallback((m: ThemeMode) => {
+    setModeState(m);
+    localStorage.setItem('theme', m);
+    document.cookie = `theme=${m};path=/;max-age=31536000;SameSite=Lax`;
+    apply(resolve(m));
+  }, [apply]);
+
   const toggle = useCallback(() => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  }, [theme, setTheme]);
+    setMode(resolved === 'dark' ? 'light' : 'dark');
+  }, [resolved, setMode]);
 
   const dismissNightBanner = useCallback(() => {
     setShowNightBanner(false);
     sessionStorage.setItem('night-banner-dismissed', '1');
   }, []);
 
-  // Apply theme on mount
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
+    apply(resolve(mode));
+  }, [mode, apply]);
 
-  // Check for 22:00 suggestion
+  // Follow system preference when in auto
+  useEffect(() => {
+    if (mode !== 'auto' || typeof window === 'undefined') return;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = () => apply(mq.matches ? 'dark' : 'light');
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, [mode, apply]);
+
+  // 22:00 suggestion (only when actively in light)
   useEffect(() => {
     function checkTime() {
       const hour = new Date().getHours();
-      const isDark = theme === 'dark';
       const dismissed = sessionStorage.getItem('night-banner-dismissed') === '1';
-      if (hour >= 22 && !isDark && !dismissed) {
-        setShowNightBanner(true);
-      } else {
-        setShowNightBanner(false);
-      }
+      setShowNightBanner(hour >= 22 && resolved === 'light' && !dismissed);
     }
     checkTime();
     const interval = setInterval(checkTime, 60_000);
     return () => clearInterval(interval);
-  }, [theme]);
+  }, [resolved]);
 
   const ctx = useMemo(
-    () => ({ theme, setTheme, toggle, showNightBanner, dismissNightBanner }),
-    [theme, setTheme, toggle, showNightBanner, dismissNightBanner],
+    () => ({ mode, resolved, setMode, toggle, showNightBanner, dismissNightBanner }),
+    [mode, resolved, setMode, toggle, showNightBanner, dismissNightBanner],
   );
 
   return <Ctx value={ctx}>{children}</Ctx>;

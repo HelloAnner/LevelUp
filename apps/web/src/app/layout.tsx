@@ -1,4 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
+import { cookies } from 'next/headers';
 import Providers from './providers';
 import GlobalShortcuts from '@/components/GlobalShortcuts';
 import CommandBar from '@/components/CommandBar';
@@ -12,9 +13,13 @@ export const metadata = {
   description: 'Your growth companion — one who walked the road with you.',
 };
 
-export default function RootLayout({ children }: { children: ReactNode }): ReactElement {
+export default async function RootLayout({ children }: { children: ReactNode }): Promise<ReactElement> {
+  const cookieStore = await cookies();
+  const stored = cookieStore.get('theme')?.value;
+  // 'auto' resolves client-side — server picks dark as a neutral default to match :root
+  const initial = stored === 'light' ? 'light' : 'dark';
   return (
-    <html lang="en" data-theme="dark">
+    <html lang="en" data-theme={initial}>
       <body>
         <Providers>
           <GlobalShortcuts />
