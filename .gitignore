@@ -47,6 +47,10 @@ Thumbs.db
 coverage/
 *.lcov
 .nyc_output/
+.smoke-shots/
+e2e/results/
+e2e/__screenshots__/
+playwright-report/
 
 # Misc
 *.pem

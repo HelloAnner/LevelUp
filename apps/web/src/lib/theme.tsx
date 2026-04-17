@@ -25,9 +25,15 @@ interface ThemeCtx {
 
 const Ctx = createContext<ThemeCtx>(null!);
 
+function readCookie(name: string): string | undefined {
+  if (typeof document === 'undefined') return undefined;
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : undefined;
+}
+
 function getStored(): ThemeMode {
   if (typeof window === 'undefined') return 'dark';
-  const m = localStorage.getItem('theme');
+  const m = localStorage.getItem('theme') ?? readCookie('theme');
   return m === 'light' || m === 'auto' ? m : 'dark';
 }
 
