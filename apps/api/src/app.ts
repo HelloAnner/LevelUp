@@ -61,12 +61,15 @@ export async function createApp(config: Config): Promise<App> {
       diskFreeMb = parseInt(parts[3] ?? '0', 10);
     } catch { /* ignore */ }
 
+    const worker = await readWorkerHeartbeat(config.dataRoot);
+
     return {
       status: 'ok',
       ts: Date.now(),
       dbMs,
       diskFreeMb,
       openTenants: registry.getStats().openTenants,
+      worker,
     };
   });
 
@@ -86,4 +89,35 @@ export async function createApp(config: Config): Promise<App> {
       systemDb.close();
     },
   };
+}
+
+interface WorkerHeartbeat {
+  alive: boolean;
+  lastRunAt: string | null;
+  staleSeconds: number | null;
+  jobs: Record<string, { lastRunAt: string; processedCount: number }>;
+}
+
+async function readWorkerHeartbeat(dataRoot: string): Promise<WorkerHeartbeat> {
+  try {
+    const { readFileSync } = await import('node:fs');
+    const { join } = await import('node:path');
+    const statePath = join(dataRoot, 'scheduler-state.json');
+    const raw = readFileSync(statePath, 'utf8');
+    const parsed = JSON.parse(raw) as WorkerHeartbeat['jobs'];
+    const mostRecent = Object.values(parsed)
+      .map((j) => Date.parse(j.lastRunAt))
+      .filter((t) => !Number.isNaN(t))
+      .sort((a, b) => b - a)[0];
+    const last = mostRecent ? new Date(mostRecent).toISOString() : null;
+    const stale = mostRecent ? Math.round((Date.now() - mostRecent) / 1000) : null;
+    return {
+      alive: stale !== null && stale < 300,
+      lastRunAt: last,
+      staleSeconds: stale,
+      jobs: parsed,
+    };
+  } catch {
+    return { alive: false, lastRunAt: null, staleSeconds: null, jobs: {} };
+  }
 }

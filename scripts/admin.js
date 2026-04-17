@@ -58,7 +58,7 @@ function listTenants() {
   }
 }
 
-function tenantStats(tenantId) {
+async function tenantStats(tenantId) {
   if (!tenantId) {
     console.error('Usage: admin.js tenant-stats <tenantId>');
     process.exit(1);
@@ -109,21 +109,28 @@ function deleteTenant(tenantId) {
   }
 }
 
-switch (command) {
-  case 'list-tenants':
-    listTenants();
-    break;
-  case 'tenant-stats':
-    tenantStats(args[0]);
-    break;
-  case 'delete-tenant':
-    deleteTenant(args[0]);
-    break;
-  default:
-    console.log(`LevelUp Admin CLI
+async function main() {
+  switch (command) {
+    case 'list-tenants':
+      listTenants();
+      break;
+    case 'tenant-stats':
+      await tenantStats(args[0]);
+      break;
+    case 'delete-tenant':
+      deleteTenant(args[0]);
+      break;
+    default:
+      console.log(`LevelUp Admin CLI
 
 Commands:
   list-tenants           List all tenants with stats
   tenant-stats <id>      Show detailed stats for a tenant
   delete-tenant <id>     Permanently delete a tenant`);
+  }
 }
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
