@@ -18,10 +18,11 @@ export default async function RootLayout({ children }: { children: ReactNode }):
   const stored = cookieStore.get('theme')?.value;
   // 'auto' resolves client-side — server picks dark as a neutral default to match :root
   const initial = stored === 'light' ? 'light' : 'dark';
+  const sidebarCollapsed = cookieStore.get('sidebar-collapsed')?.value === '1';
   return (
     <html lang="en" data-theme={initial}>
       <body>
-        <Providers>
+        <Providers initialSidebarCollapsed={sidebarCollapsed}>
           <GlobalShortcuts />
           <NightBanner />
           {children}

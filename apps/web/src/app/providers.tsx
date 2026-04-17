@@ -6,11 +6,19 @@ import { KeyboardProvider } from '@/lib/keyboard';
 import { DrawerProvider } from '@/lib/drawer';
 import { ThemeProvider } from '@/lib/theme';
 
-export default function Providers({ children }: { children: ReactNode }): ReactElement {
+interface ProvidersProps {
+  children: ReactNode;
+  initialSidebarCollapsed?: boolean;
+}
+
+export default function Providers({
+  children,
+  initialSidebarCollapsed,
+}: ProvidersProps): ReactElement {
   return (
     <ReducedMotionProvider>
       <ThemeProvider>
-        <KeyboardProvider>
+        <KeyboardProvider initialSidebarCollapsed={initialSidebarCollapsed}>
           <DrawerProvider>
             {children}
           </DrawerProvider>

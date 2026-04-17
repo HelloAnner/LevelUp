@@ -53,21 +53,40 @@ export const shortcuts = {
 
 /* ── Provider ──────────────────────────────────────── */
 
-export function KeyboardProvider({ children }: { children: ReactNode }): ReactElement {
+interface KeyboardProviderProps {
+  children: ReactNode;
+  initialSidebarCollapsed?: boolean;
+}
+
+export function KeyboardProvider({
+  children,
+  initialSidebarCollapsed = false,
+}: KeyboardProviderProps): ReactElement {
   const registered = useRef(new Map<string, Shortcut>());
   const [commandBarOpen, setCommandBarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return localStorage.getItem('sidebar-collapsed') === '1';
-  });
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(initialSidebarCollapsed);
+
+  const persist = useCallback((v: boolean) => {
+    try {
+      localStorage.setItem('sidebar-collapsed', v ? '1' : '0');
+    } catch {
+      // storage unavailable (private mode)
+    }
+    document.cookie = `sidebar-collapsed=${v ? '1' : '0'};path=/;max-age=31536000;SameSite=Lax`;
+  }, []);
+
+  const setSidebarCollapsedWithPersist = useCallback((v: boolean) => {
+    setSidebarCollapsed(v);
+    persist(v);
+  }, [persist]);
 
   const toggleSidebar = useCallback(() => {
     setSidebarCollapsed((c) => {
       const next = !c;
-      localStorage.setItem('sidebar-collapsed', next ? '1' : '0');
+      persist(next);
       return next;
     });
-  }, []);
+  }, [persist]);
 
   const registerShortcut = useCallback((id: string, shortcut: Shortcut) => {
     registered.current.set(id, shortcut);
@@ -111,10 +130,10 @@ export function KeyboardProvider({ children }: { children: ReactNode }): ReactEl
       commandBarOpen,
       setCommandBarOpen,
       sidebarCollapsed,
-      setSidebarCollapsed,
+      setSidebarCollapsed: setSidebarCollapsedWithPersist,
       toggleSidebar,
     }),
-    [registerShortcut, commandBarOpen, sidebarCollapsed, toggleSidebar],
+    [registerShortcut, commandBarOpen, sidebarCollapsed, setSidebarCollapsedWithPersist, toggleSidebar],
   );
 
   return <Ctx value={ctx}>{children}</Ctx>;
