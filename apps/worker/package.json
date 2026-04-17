@@ -14,6 +14,7 @@
     "@levelup/memory": "workspace:*",
     "@levelup/shared": "workspace:*",
     "@levelup/tenancy": "workspace:*",
+    "@levelup/vector": "workspace:*",
     "nanoid": "^5.0.7",
     "node-cron": "^3.0.3",
     "pino": "^9.5.0",

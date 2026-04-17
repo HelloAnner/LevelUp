@@ -1,5 +1,6 @@
 import Fastify, { type FastifyInstance } from 'fastify';
 import { createTenantRegistry, type TenantRegistry } from '@levelup/tenancy';
+import { createSqliteVectorStore } from '@levelup/vector';
 import type { LLMClient } from '@levelup/llm';
 import { createFakeLLM, createAnthropicClient } from '@levelup/llm';
 import { openSystemDb } from './system-db.js';
@@ -21,7 +22,10 @@ export interface App {
 
 export async function createApp(config: Config): Promise<App> {
   const systemDb = await openSystemDb(config.systemDbPath);
-  const registry = createTenantRegistry({ dataRoot: config.dataRoot });
+  const registry = createTenantRegistry({
+    dataRoot: config.dataRoot,
+    vectorStoreFactory: (tenantDir) => createSqliteVectorStore(tenantDir),
+  });
   const auth = createAuth({ systemDb, registry });
 
   const llm: LLMClient = config.anthropicApiKey

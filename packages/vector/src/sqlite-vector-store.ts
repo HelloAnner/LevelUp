@@ -1,4 +1,5 @@
 import Database from 'better-sqlite3';
+import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import type { VectorStore } from '@levelup/tenancy';
 
@@ -13,7 +14,9 @@ import type { VectorStore } from '@levelup/tenancy';
  * the per-tenant scale (hundreds to low thousands of vectors).
  */
 export function createSqliteVectorStore(tenantDir: string): VectorStore {
-  const dbPath = join(tenantDir, 'vectors', 'memory.sqlite');
+  const dir = join(tenantDir, 'vectors');
+  mkdirSync(dir, { recursive: true });
+  const dbPath = join(dir, 'memory.sqlite');
   const db = new Database(dbPath);
   db.pragma('journal_mode = WAL');
   db.pragma('busy_timeout = 5000');

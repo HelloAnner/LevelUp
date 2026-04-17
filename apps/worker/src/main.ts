@@ -2,6 +2,7 @@ import path from 'node:path';
 import { z } from 'zod';
 import pino from 'pino';
 import { createTenantRegistry } from '@levelup/tenancy';
+import { createSqliteVectorStore } from '@levelup/vector';
 import { createAnthropicClient, createFakeLLM } from '@levelup/llm';
 import { Scheduler } from './scheduler.js';
 import { createDigestWriter } from './jobs/digest-writer.js';
@@ -19,19 +20,47 @@ const EnvSchema = z.object({
   LOG_LEVEL: z.string().default('info'),
 });
 
+interface LoggerEnv {
+  NODE_ENV: 'development' | 'production' | 'test';
+  LOG_LEVEL: string;
+}
+
+export async function buildLoggerOptions(
+  env: LoggerEnv,
+  canUsePretty: () => Promise<boolean> = hasPinoPretty,
+): Promise<pino.LoggerOptions> {
+  const opts: pino.LoggerOptions = { level: env.LOG_LEVEL };
+  if (env.NODE_ENV === 'development' && (await canUsePretty())) {
+    opts.transport = { target: 'pino-pretty', options: { colorize: true } };
+  }
+  return opts;
+}
+
+async function hasPinoPretty(): Promise<boolean> {
+  try {
+    await import('pino-pretty');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function main() {
   const env = EnvSchema.parse(process.env);
   const dataRoot = path.resolve(env.DATA_ROOT);
 
-  const logOpts: pino.LoggerOptions = { level: env.LOG_LEVEL };
-  if (env.NODE_ENV === 'development') {
-    logOpts.transport = { target: 'pino-pretty', options: { colorize: true } };
-  }
+  const logOpts = await buildLoggerOptions(
+    { NODE_ENV: env.NODE_ENV, LOG_LEVEL: env.LOG_LEVEL },
+    hasPinoPretty,
+  );
   const log = pino(logOpts);
 
   log.info({ dataRoot }, 'worker starting');
 
-  const registry = createTenantRegistry({ dataRoot });
+  const registry = createTenantRegistry({
+    dataRoot,
+    vectorStoreFactory: (tenantDir) => createSqliteVectorStore(tenantDir),
+  });
   const llm = env.ANTHROPIC_API_KEY
     ? createAnthropicClient({
         apiKey: env.ANTHROPIC_API_KEY,

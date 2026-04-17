@@ -24,6 +24,7 @@
     "@levelup/persona": "workspace:*",
     "@levelup/shared": "workspace:*",
     "@levelup/tenancy": "workspace:*",
+    "@levelup/vector": "workspace:*",
     "better-sqlite3": "^11.3.0",
     "fastify": "^5.0.0",
     "nanoid": "^5.0.7",
