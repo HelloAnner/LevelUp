@@ -5,11 +5,12 @@ import TopBar from '@/components/TopBar';
 import Sidebar from '@/components/Sidebar';
 import InputBar from '@/components/InputBar';
 import InlineCard from '@/components/InlineCard';
-import Halo from '@/components/Halo';
 import HeroBlobs from '@/components/HeroBlobs';
 import WordStream from '@/components/WordStream';
-import { MOCK_GOALS } from '@/lib/mock';
+import { coerceDevLoginEmail } from '@/lib/dev-login';
+import { getMockGoals } from '@/lib/mock';
 import { useDrawer } from '@/lib/drawer';
+import { useI18n } from '@/lib/i18n-client';
 
 import type { CardPayload } from '@levelup/shared';
 
@@ -22,10 +23,13 @@ interface Message {
 }
 
 export default function Home(): ReactElement {
+  const { messages: i18nMessages } = useI18n();
+  const appText = i18nMessages.app;
+  const goals = getMockGoals(i18nMessages);
   const [loggedIn, setLoggedIn] = useState(false);
   const [email, setEmail] = useState('');
   const [convId, setConvId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const [pending, setPending] = useState(false);
   const streamRef = useRef<HTMLDivElement | null>(null);
   const { open: openDrawer } = useDrawer();
@@ -41,10 +45,10 @@ export default function Home(): ReactElement {
 
   useEffect(() => {
     streamRef.current?.scrollTo({ top: 999999, behavior: 'smooth' });
-  }, [messages, pending]);
+  }, [chatMessages, pending]);
 
   async function handleLogin(): Promise<void> {
-    const target = email.trim() || 'you@example.com';
+    const target = coerceDevLoginEmail(email) ?? 'you@local.dev';
     const res = await fetch('/api/auth/dev-login', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -75,7 +79,7 @@ export default function Home(): ReactElement {
     const id = await ensureConversation();
     const userMsgId = `u-${Date.now()}`;
     const assistantId = `a-${Date.now()}`;
-    setMessages((m) => [
+    setChatMessages((m) => [
       ...m,
       { id: userMsgId, role: 'user', content: trimmed },
       { id: assistantId, role: 'assistant', content: '', streaming: true },
@@ -110,7 +114,7 @@ export default function Home(): ReactElement {
         const eventName = eventLine.slice('event:'.length).trim();
         const data = JSON.parse(dataLine.slice('data:'.length).trim());
         if (eventName === 'token') {
-          setMessages((m) =>
+          setChatMessages((m) =>
             m.map((msg) =>
               msg.id === assistantId
                 ? { ...msg, content: msg.content + data.delta }
@@ -118,11 +122,11 @@ export default function Home(): ReactElement {
             ),
           );
         } else if (eventName === 'replace') {
-          setMessages((m) =>
+          setChatMessages((m) =>
             m.map((msg) => (msg.id === assistantId ? { ...msg, content: '' } : msg)),
           );
         } else if (eventName === 'card') {
-          setMessages((m) =>
+          setChatMessages((m) =>
             m.map((msg) =>
               msg.id === assistantId
                 ? { ...msg, card: data as CardPayload }
@@ -130,7 +134,7 @@ export default function Home(): ReactElement {
             ),
           );
         } else if (eventName === 'done' || eventName === 'error') {
-          setMessages((m) =>
+          setChatMessages((m) =>
             m.map((msg) =>
               msg.id === assistantId ? { ...msg, streaming: false } : msg,
             ),
@@ -148,20 +152,23 @@ export default function Home(): ReactElement {
         <div className="body-center">
           <HeroBlobs />
           <div className="login-stack">
-            <div className="login-q">What should I call you?</div>
+            <div className="login-q">{appText.loginQuestion}</div>
             <div className="login-input-wrap">
               <input
                 className="login-input"
-                placeholder=""
+                placeholder={appText.loginPlaceholder}
                 autoFocus
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-                type="email"
+                onKeyDown={(e) => e.key === 'Enter' && void handleLogin()}
+                type="text"
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck={false}
               />
               <div className="login-input-line" />
             </div>
-            <div className="login-hint">↵</div>
+            <div className="login-hint">{appText.loginHint}</div>
           </div>
         </div>
       </div>
@@ -170,22 +177,22 @@ export default function Home(): ReactElement {
 
   return (
     <div className="app">
-      <TopBar context="Side Project MVP" />
+      <TopBar context={appText.loginContext} />
       <div className="body">
         <Sidebar
-          goals={MOCK_GOALS}
+          goals={goals}
           onGoalClick={(id) => openDrawer({ type: 'goal', goalId: id })}
         />
         <main className="main" style={{ position: 'relative' }}>
-          {messages.length === 0 && <HeroBlobs />}
+          {chatMessages.length === 0 && <HeroBlobs />}
           <div className="msg-area" ref={streamRef} style={{ position: 'relative', zIndex: 1 }}>
             <div className="msg-col">
-              {messages.length === 0 && (
+              {chatMessages.length === 0 && (
                 <div className="msg-ai" style={{ color: 'var(--fg-1)', textAlign: 'center' }}>
-                  Start talking. I&apos;ll remember what you say.
+                  {appText.emptyChat}
                 </div>
               )}
-              {messages.map((m) => {
+              {chatMessages.map((m) => {
                 if (m.role === 'user') {
                   return (
                     <div key={m.id} className="msg-user">
@@ -212,7 +219,7 @@ export default function Home(): ReactElement {
             </div>
           </div>
           <InputBar
-            placeholder="Tell me what you moved today…"
+            placeholder={appText.inputPlaceholder}
             onSubmit={handleSend}
             disabled={pending}
           />

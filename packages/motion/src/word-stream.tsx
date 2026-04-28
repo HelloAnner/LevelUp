@@ -47,7 +47,9 @@ export function WordStream({
   return (
     <span className={`word-stream ${className}`}>
       {parts.map((part, i) => {
-        if (part.trim() === '') return <span key={i}>{part}</span>;
+        if (part.trim() === '') {
+          return <span key={i}>{preserveWhitespace(part)}</span>;
+        }
         if (streaming && i < firstNewIndex) {
           return <span key={i} style={{ opacity: 1, animation: 'none' }}>{part}</span>;
         }
@@ -62,4 +64,8 @@ export function WordStream({
       })}
     </span>
   );
+}
+
+function preserveWhitespace(part: string): string {
+  return part.replace(/ /g, '\u00A0').replace(/\t/g, '\u00A0\u00A0');
 }

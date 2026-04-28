@@ -6,6 +6,8 @@ import CommandBar from '@/components/CommandBar';
 import DrawerHost from '@/components/DrawerHost';
 import NightBanner from '@/components/NightBanner';
 import ScenesNav from '@/components/ScenesNav';
+import { I18nProvider } from '@/lib/i18n-client';
+import { getServerI18n } from '@/lib/i18n-server';
 import './globals.css';
 
 export const metadata = {
@@ -15,21 +17,24 @@ export const metadata = {
 
 export default async function RootLayout({ children }: { children: ReactNode }): Promise<ReactElement> {
   const cookieStore = await cookies();
+  const { locale } = await getServerI18n();
   const stored = cookieStore.get('theme')?.value;
   // 'auto' resolves client-side — server picks dark as a neutral default to match :root
   const initial = stored === 'light' ? 'light' : 'dark';
   const sidebarCollapsed = cookieStore.get('sidebar-collapsed')?.value === '1';
   return (
-    <html lang="en" data-theme={initial}>
+    <html lang={locale} data-theme={initial}>
       <body>
-        <Providers initialSidebarCollapsed={sidebarCollapsed}>
-          <GlobalShortcuts />
-          <NightBanner />
-          {children}
-          <CommandBar />
-          <DrawerHost />
-          <ScenesNav />
-        </Providers>
+        <I18nProvider locale={locale}>
+          <Providers initialSidebarCollapsed={sidebarCollapsed}>
+            <GlobalShortcuts />
+            <NightBanner />
+            {children}
+            <CommandBar />
+            <DrawerHost />
+            <ScenesNav />
+          </Providers>
+        </I18nProvider>
       </body>
     </html>
   );

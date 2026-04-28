@@ -1,3 +1,5 @@
+import type { Messages } from './i18n';
+
 export interface MockMessage {
   id: string;
   role: 'user' | 'assistant';
@@ -40,6 +42,16 @@ export const MOCK_GOALS: MockGoal[] = [
     subAlert: true,
   },
 ];
+
+export function getMockGoals(messages: Messages): MockGoal[] {
+  const t = messages.mock.goals;
+  return MOCK_GOALS.map((goal) => {
+    if (goal.id === 'g1') return { ...goal, title: t.g1.title, sub: t.g1.sub };
+    if (goal.id === 'g2') return { ...goal, title: t.g2.title, sub: t.g2.sub };
+    if (goal.id === 'g3') return { ...goal, title: t.g3.title, sub: t.g3.sub };
+    return goal;
+  });
+}
 
 export const MOCK_CHAT_FRAME_5: MockMessage[] = [
   {

@@ -4,11 +4,15 @@ import type { ReactElement } from 'react';
 import type { CardPayload } from '@levelup/shared';
 import { CardPush } from '@levelup/motion';
 import { useDrawer } from '@/lib/drawer';
+import { formatMessage } from '@/lib/i18n';
+import { useI18n } from '@/lib/i18n-client';
 
 /* ── Progress (C1) ─────────────────────────────── */
 
 function ProgressCard({ title, percent, nextStep, goalId }: CardPayload & { type: 'progress' }): ReactElement {
   const { open } = useDrawer();
+  const { messages } = useI18n();
+  const t = messages.inlineCard;
   return (
     <div className="inline-card">
       <div className="inline-card-head">
@@ -22,7 +26,7 @@ function ProgressCard({ title, percent, nextStep, goalId }: CardPayload & { type
       </div>
       <div className="inline-card-grid">
         <div className="inline-card-cell">
-          <div className="inline-card-label">NEXT</div>
+          <div className="inline-card-label">{t.next}</div>
           <div className="inline-card-value">{nextStep}</div>
         </div>
       </div>
@@ -32,7 +36,7 @@ function ProgressCard({ title, percent, nextStep, goalId }: CardPayload & { type
         style={{ cursor: 'pointer' }}
       >
         <span className="inline-card-cta-arrow">→</span>
-        <span className="inline-card-cta-text">VIEW FULL PATH</span>
+        <span className="inline-card-cta-text">{t.viewFullPath}</span>
       </div>
     </div>
   );
@@ -41,10 +45,12 @@ function ProgressCard({ title, percent, nextStep, goalId }: CardPayload & { type
 /* ── Locate (C2) ───────────────────────────────── */
 
 function LocateCard({ trail, currentNode }: CardPayload & { type: 'locate' }): ReactElement {
+  const { messages } = useI18n();
+  const t = messages.inlineCard;
   return (
     <div className="inline-card">
       <div className="inline-card-head">
-        <span className="inline-card-label">YOUR POSITION</span>
+        <span className="inline-card-label">{t.yourPosition}</span>
       </div>
       <div className="inline-card-trail">
         {trail.map((node, i) => (
@@ -62,6 +68,8 @@ function LocateCard({ trail, currentNode }: CardPayload & { type: 'locate' }): R
 
 function StatusCard({ title, currentMilestone, recentAction, goalId }: CardPayload & { type: 'status' }): ReactElement {
   const { open } = useDrawer();
+  const { messages } = useI18n();
+  const t = messages.inlineCard;
   return (
     <div className="inline-card">
       <div className="inline-card-head">
@@ -70,11 +78,11 @@ function StatusCard({ title, currentMilestone, recentAction, goalId }: CardPaylo
       </div>
       <div className="inline-card-grid">
         <div className="inline-card-cell">
-          <div className="inline-card-label">MILESTONE</div>
+          <div className="inline-card-label">{t.milestone}</div>
           <div className="inline-card-value">{currentMilestone}</div>
         </div>
         <div className="inline-card-cell">
-          <div className="inline-card-label">LAST ACTION</div>
+          <div className="inline-card-label">{t.lastAction}</div>
           <div className="inline-card-value dim">{recentAction}</div>
         </div>
       </div>
@@ -84,7 +92,7 @@ function StatusCard({ title, currentMilestone, recentAction, goalId }: CardPaylo
         style={{ cursor: 'pointer' }}
       >
         <span className="inline-card-cta-arrow">→</span>
-        <span className="inline-card-cta-text">VIEW FULL PATH</span>
+        <span className="inline-card-cta-text">{t.viewFullPath}</span>
       </div>
     </div>
   );
@@ -93,10 +101,12 @@ function StatusCard({ title, currentMilestone, recentAction, goalId }: CardPaylo
 /* ── Summary (C4) ──────────────────────────────── */
 
 function SummaryCard({ goals }: CardPayload & { type: 'summary' }): ReactElement {
+  const { messages } = useI18n();
+  const t = messages.inlineCard;
   return (
     <div className="inline-card">
       <div className="inline-card-head">
-        <span className="inline-card-label">ALL ACTIVE GOALS</span>
+        <span className="inline-card-label">{t.allActiveGoals}</span>
       </div>
       {goals.map((g) => (
         <div key={g.id} className="inline-card-summary-row">
@@ -112,10 +122,12 @@ function SummaryCard({ goals }: CardPayload & { type: 'summary' }): ReactElement
 /* ── Encourage (C5) ────────────────────────────── */
 
 function EncourageCard({ doneActions, days }: CardPayload & { type: 'encourage' }): ReactElement {
+  const { messages } = useI18n();
+  const t = messages.inlineCard;
   return (
     <div className="inline-card">
       <div className="inline-card-head">
-        <span className="inline-card-label">PAST {days} DAYS</span>
+        <span className="inline-card-label">{formatMessage(t.pastDays, { days })}</span>
       </div>
       <div className="inline-card-encourage">
         {doneActions.map((a, i) => (
@@ -133,10 +145,12 @@ function EncourageCard({ doneActions, days }: CardPayload & { type: 'encourage' 
 /* ── Celebrate (C6) ────────────────────────────── */
 
 function CelebrateCard({ milestoneTitle, oneLinerQuote }: CardPayload & { type: 'celebrate' }): ReactElement {
+  const { messages } = useI18n();
+  const t = messages.inlineCard;
   return (
     <div className="inline-card celebrate">
       <div className="inline-card-head">
-        <span className="inline-card-label accent">MILESTONE COMPLETE</span>
+        <span className="inline-card-label accent">{t.milestoneComplete}</span>
       </div>
       <div className="inline-card-celebrate-title">{milestoneTitle}</div>
       {oneLinerQuote && (

@@ -3,6 +3,7 @@
 import { type ReactElement } from 'react';
 import type { MockGoal } from '@/lib/mock';
 import { useKeyboard } from '@/lib/keyboard';
+import { useI18n } from '@/lib/i18n-client';
 
 interface SidebarProps {
   goals?: MockGoal[];
@@ -14,6 +15,8 @@ export default function Sidebar({
   onGoalClick,
 }: SidebarProps): ReactElement {
   const { sidebarCollapsed } = useKeyboard();
+  const { messages } = useI18n();
+  const t = messages.sidebar;
 
   if (sidebarCollapsed) {
     return (
@@ -37,7 +40,7 @@ export default function Sidebar({
 
   return (
     <aside className="sidebar expanded">
-      <div className="sb-label">GOALS</div>
+      <div className="sb-label">{t.goals}</div>
       {goals.map((g) => (
         <div
           key={g.id}
@@ -58,7 +61,7 @@ export default function Sidebar({
       ))}
       <div className="new-goal">
         <span className="new-goal-plus">+</span>
-        <span className="new-goal-text">NEW GOAL</span>
+        <span className="new-goal-text">{t.newGoal}</span>
       </div>
     </aside>
   );

@@ -2,15 +2,18 @@
 
 import type { ReactElement } from 'react';
 import { useTheme } from '@/lib/theme';
+import { useI18n } from '@/lib/i18n-client';
 
 export default function NightBanner(): ReactElement {
   const { showNightBanner, setMode, dismissNightBanner } = useTheme();
+  const { messages } = useI18n();
+  const t = messages.nightBanner;
 
   if (!showNightBanner) return <></>;
 
   return (
     <div className="night-banner">
-      <span>It&apos;s late. Switch to dark mode?</span>
+      <span>{t.prompt}</span>
       <button
         className="night-banner-btn"
         onClick={() => {
@@ -18,13 +21,13 @@ export default function NightBanner(): ReactElement {
           dismissNightBanner();
         }}
       >
-        Yes
+        {t.confirm}
       </button>
       <button
         className="night-banner-btn dim"
         onClick={dismissNightBanner}
       >
-        Not now
+        {t.dismiss}
       </button>
     </div>
   );
